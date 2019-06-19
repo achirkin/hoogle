@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, PatternGuards, TemplateHaskell, CPP #-}
+{-# LANGUAGE RecordWildCards, PatternGuards #-}
 
 
 -- | Module for reading settings files.
@@ -53,12 +53,41 @@ readFileSettings file backup = do
 loadSettings :: IO Settings
 loadSettings = do
     dataDir <- getDataDir
-#ifdef PROFILE
-    -- profiling and TemplateHaskell don't play well
-    let backup = ""
-#else
-    let backup = $(runIO (readFileUTF8 "misc/settings.txt") >>= lift)
-#endif
+    let backup =
+            "-- A list of settings, installed as a data file on the users machine.\n\
+            \\n\
+            \-- Applied to cabal fields when the same semantic value is used multiple times with\n\
+            \-- typos/names/capitalisation.\n\
+            \RenameTag \"Silk-B.V.\" \"Silk\"\n\
+            \RenameTag \"Silk.-B.V.\" \"Silk\"\n\
+            \RenameTag \"Michael-snoyman\" \"Michael-Snoyman\"\n\
+            \RenameTag \"Apache-2.0\" \"Apache\"\n\
+            \RenameTag \"GPL-3\" \"GPL\"\n\
+            \RenameTag \"LGPL-2.1\" \"LGPL\"\n\
+            \RenameTag \"LGPL-3\" \"LGPL\"\n\
+            \RenameTag \"graphics\" \"Graphics\"\n\
+            \RenameTag \"math\" \"Math\"\n\
+            \RenameTag \"Unclassified\" \"\"\n\
+            \RenameTag \"data\" \"Data\"\n\
+            \RenameTag \"Edward-A.-Kmett\" \"Edward-Kmett\"\n\
+            \RenameTag \"Jose-Pedro-Magalhaes\" \"José-Pedro-Magalhães\"\n\
+            \RenameTag \"AUTHORS\" \"\"\n\
+            \RenameTag \"contributors-see-README\" \"\"\n\
+            \RenameTag \"author\" \"\"\n\
+            \RenameTag \"http://www.cse.chalmers.se/~nad/\" \"Nils Anders Danielsson\"\n\
+            \RenameTag \"many-others\" \"\"\n\
+            \RenameTag \"Error-handling\" \"Error-Handling\"\n\
+            \RenameTag \"Daniel-SchÃ¼ssler\" \"Daniel Schüssler\"\n\
+            \RenameTag \"Various\" \"\"\n\
+            \RenameTag \"Various;-see-individual-modules\" \"\"\n\
+            \\n\
+            \-- Reorder modules so the common things come first\n\
+            \ReorderModule \"base\" \"Prelude\"        1009\n\
+            \ReorderModule \"base\" \"Data.List\"      1008\n\
+            \ReorderModule \"base\" \"Data.Maybe\"     1007\n\
+            \ReorderModule \"base\" \"Data.Function\"  1006\n\
+            \ReorderModule \"base\" \"Control.Monad\"  1005\n\
+            \ReorderModule \"base\" \"GHC.*\"        (-1000)"
     src <- readFileSettings (dataDir </> "misc/settings.txt") backup
     return $ createSettings src
 
